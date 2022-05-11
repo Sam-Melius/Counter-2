@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import styles from './Counter.css';
 
 const colors = {
@@ -6,65 +6,77 @@ const colors = {
   green: 'rgb(52, 211, 153)',
   red: 'rgb(239, 68, 68)',
 };
-const initialState = { count: 0 };
-
-const initialColor = { color:  colors.yellow };
+const initialState = { count: 0, color: 'yellow' };
 
 const reducer = (state, action) => {
-  if (action.type === 'increment') {
-    return { count: state.count + action.payload };
-  }
-  if (action.type === 'decrement') {
-    return { count: state.count - action.payload };
-  }
-  if (action.type === 'reset') {
-    return { count: state.count === initialState };
+  switch (action.type) {
+    case 'INCREMENT':
+      return { ...state, count: ++state.count };
+    case 'DECREMENT':
+      return { ...state, count: --state.count };
+    case 'RESET':
+      return { ...state, count: 0};
+    case 'COLOR':
+      return { ...state, color: action.payload.color };
   }
 };
 
-// const colorReducer = (state, action) => {
-//   if (count === 0) {
-//     return { colors: state.colors.yellow };
-//   }
 
-//   if (count > 0) {
-//     return { colors: state.colors.green };
-//   }
-
-//   if (count < 0) {
-//     return { colors: state.colors.red };
-//   }
-// };
 
 export default function Counter() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  //const [colorState, colorDispatch] = useReducer(colorReducer, initialColor);
+
+  useEffect(() => {
+    if (state.count === 0) {
+      dispatch({type: 'COLOR', payload: { color: colors.yellow} });
+    }
+
+    if (state.count > 0) {
+      dispatch({type: 'COLOR', payload: { color: colors.green} });
+    }
+
+    if (state.count < 0) {
+      dispatch({type: 'COLOR', payload: { color: colors.red} });
+    }
+  }, [state.count]);
+
+  const increment = () => {
+    dispatch({ type: 'INCREMENT'});
+  };
+
+  const decrement = () => {
+    dispatch({ type: 'DECREMENT'});
+  };
+
+  const reset = () => {
+    dispatch({ type: 'RESET'});
+  };
 
   return (
     <main className={styles.main}>
-      <h1 style={{ initialColor }}>{state.count}</h1>
+      <h1 style={{ color: state.color }}>{state.count}</h1>
       <div>
         <button
           type="button"
-          onClick={() => dispatch({ type: 'increment', payload: 1 })}
+          onClick={increment}
           aria-label="increment"
-          //style={{ backgroundColor: colors.green }}
+          style={{ backgroundColor: colors.green }}
         >
           Increment
         </button>
         <button
           type="button"
-          onClick={() => dispatch({ type: 'decrement', payload: 1 })}
+          onClick={decrement}
           aria-label="decrement"
-          //style={{ backgroundColor: colors.red }}
+          style={{ backgroundColor: colors.red }}
         >
           Decrement
         </button>
         <button
           type="button"
           aria-label="reset"
-          onClick={() => dispatch({ type: 'reset', payload: 1 })}
-          //style={{ backgroundColor: colors.yellow }}
+          onClick={reset}
+          style={{ backgroundColor: colors.yellow }}
         >
           Reset
         </button>
